@@ -40,9 +40,7 @@ public class AnimatedPanel extends JPanel implements ActionListener
     {
         _aniProgress--;
 
-        if (_aniProgress > 0)
-            _timer.start();
-        else
+        if (_aniProgress == 0)
             _timer.stop();
 
         onAniProgressChanged();
