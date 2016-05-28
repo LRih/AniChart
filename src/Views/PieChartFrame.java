@@ -48,14 +48,13 @@ public final class PieChartFrame extends JFrame
 
     private void resetChart()
     {
+        _chart.clear();
+
         _chart.setTitle("Title");
 
         int count = MathUtils.rand(2, 8);
-        float[] values = new float[count];
 
         for (int i = 0; i < count; i++)
-            values[i] = MathUtils.rand(1, 10);
-
-        _chart.setValues(values);
+            _chart.addValue(String.valueOf(i + 1), MathUtils.rand(1, 10));
     }
 }

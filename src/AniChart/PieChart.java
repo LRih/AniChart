@@ -1,45 +1,25 @@
 package AniChart;
 
+import AniChart.Bit.LegendBit;
+import AniChart.Bit.TitleBit;
+
 import java.awt.*;
 import java.awt.geom.Arc2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class PieChart extends AnimatedPanel
 {
     //========================================================================= VARIABLES
     private static final float PADDING = 20;
-    private static final float TITLE_MARGIN = 20;
 
-    private Rectangle2D _rectTitle;
+    private final TitleBit _title = new TitleBit();
+    private final LegendBit _legend = new LegendBit();
 
-    private float[] _values;
-    private float _total;
-
-    private String _title;
-
-    //========================================================================= INITIALIZE
-    public PieChart()
-    {
-        updateDimensions();
-    }
+    private List<Float> _values = new ArrayList<>();
+    private float _total = 0;
 
     //========================================================================= FUNCTIONS
-    private void updateDimensions()
-    {
-        Graphics g = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).getGraphics();
-
-        if (_title != null && !_title.isEmpty())
-        {
-            FontMetrics metrics = g.getFontMetrics(Fonts.TITLE);
-            g.setFont(Fonts.TITLE);
-            _rectTitle = metrics.getStringBounds(_title, g);
-        }
-        else
-            _rectTitle = new Rectangle(0, 0, 0, 0);
-    }
-
-
     protected final void paintComponent(Graphics graphics)
     {
         super.paintComponent(graphics);
@@ -49,40 +29,37 @@ public final class PieChart extends AnimatedPanel
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         drawTitle(g);
+        drawLegend(g);
+
         drawPie(g);
     }
 
     private void drawTitle(Graphics2D g)
     {
-        if (_title == null || _title.isEmpty())
-            return;
-
-        float x = (float)(getWidth() / 2f - _rectTitle.getCenterX());
-        float y = (float)(PADDING + _rectTitle.getHeight());
-
-        g.setFont(Fonts.TITLE);
-        g.drawString(_title, x, y);
+        _title.draw(g, getWidth() / 2f, PADDING, true);
+    }
+    private void drawLegend(Graphics2D g)
+    {
+        // TODO draw in correct position
+        _legend.draw(g, PADDING, PADDING);
     }
 
     private void drawPie(Graphics2D g)
     {
         // no values to draw
-        if (_values == null || _values.length == 0)
+        if (_values.isEmpty())
             return;
 
         float size = Math.min(contentWidth(), contentHeight());
         float x = (getWidth() - size) / 2f;
-        float y = (getHeight() - size) / 2f;
-
-        if (_title != null && !_title.isEmpty())
-            y += (_rectTitle.getHeight() + TITLE_MARGIN) / 2f;
+        float y = (getHeight() - size + _title.height()) / 2f;
 
         float totalAngle = 360 * getAniProgress();
         float angle = 0;
 
-        for (int i = 0; i < _values.length; i++)
+        for (int i = 0; i < _values.size(); i++)
         {
-            float sweep = _values[i] / _total * totalAngle;
+            float sweep = _values.get(i) / _total * totalAngle;
             drawWedge(g, x, y, size, angle, sweep, Colors.get(i));
             angle += sweep;
         }
@@ -96,6 +73,31 @@ public final class PieChart extends AnimatedPanel
         g.fill(arc);
     }
 
+
+    public final void addValue(String name, float value)
+    {
+        startAnimation();
+
+        _legend.addText(name, Colors.get(_values.size()));
+
+        _values.add(value);
+        _total += value;
+
+        repaint();
+    }
+
+    public final void clear()
+    {
+        removeAllAnimations();
+
+        _legend.clear();
+
+        _values.clear();
+        _total = 0;
+
+        repaint();
+    }
+
     //========================================================================= PROPERTIES
     private float contentWidth()
     {
@@ -103,35 +105,12 @@ public final class PieChart extends AnimatedPanel
     }
     private float contentHeight()
     {
-        float height = getHeight() - PADDING * 2;
-
-        if (_title != null && !_title.isEmpty())
-            height -= (_rectTitle.getHeight() + TITLE_MARGIN);
-
-        return height;
-    }
-
-    public final void setValues(float[] values)
-    {
-        startAnimation();
-
-        _values = values;
-        _total = 0;
-
-        if (_values == null)
-            return;
-
-        for (float value : _values)
-            _total += value;
-
-        repaint();
+        return getHeight() - PADDING * 2 - _title.height();
     }
 
     public final void setTitle(String title)
     {
-        _title = title;
-
-        updateDimensions();
+        _title.setText(title);
         repaint();
     }
 

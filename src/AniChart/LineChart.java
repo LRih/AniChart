@@ -1,5 +1,7 @@
 package AniChart;
 
+import AniChart.Bit.TitleBit;
+
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
@@ -8,8 +10,7 @@ import java.util.LinkedHashMap;
 public final class LineChart extends AnimatedPanel
 {
     //========================================================================= VARIABLES
-    private static final int PADDING = 60;
-    private static final int PADDING_RIGHT = 20;
+    private static final int PADDING = 40; // TODO reduce later after factoring axis size
 
     private static final int MINOR_AXIS_EXTRA = 6;
 
@@ -17,7 +18,7 @@ public final class LineChart extends AnimatedPanel
     private static final float MINOR_AXIS_WIDTH = 1f;
     private static final float LINE_WIDTH = 2f;
 
-    private String _title = "";
+    private final TitleBit _title = new TitleBit();
     private String _xAxisText = "";
     private String _yAxisText = "";
 
@@ -58,15 +59,7 @@ public final class LineChart extends AnimatedPanel
 
     private void drawTitle(Graphics2D g)
     {
-        FontMetrics metrics = g.getFontMetrics(Fonts.TITLE);
-        Rectangle2D rect = metrics.getStringBounds(_title, g);
-
-        g.setFont(Fonts.TITLE);
-
-        float x = getWidth() / 2f - (float)rect.getCenterX();
-        float y = PADDING / 2f - (float)rect.getCenterY();
-
-        g.drawString(_title, x, y);
+        _title.draw(g, getWidth() / 2f, PADDING, true);
     }
 
     private void drawAxisText(Graphics2D g)
@@ -171,7 +164,7 @@ public final class LineChart extends AnimatedPanel
             int x = PADDING - MINOR_AXIS_EXTRA;
 
             g.setColor(Colors.MINOR_AXIS);
-            g.drawLine(x, y, getWidth() - PADDING_RIGHT, y);
+            g.drawLine(x, y, getWidth() - PADDING, y);
 
             g.setColor(Colors.TEXT);
             g.drawString(text, x - (float)rect.getWidth(), y - (float)rect.getCenterY());
@@ -191,7 +184,7 @@ public final class LineChart extends AnimatedPanel
             int x = PADDING - MINOR_AXIS_EXTRA;
 
             g.setColor(Colors.MINOR_AXIS);
-            g.drawLine(x, y, getWidth() - PADDING_RIGHT, y);
+            g.drawLine(x, y, getWidth() - PADDING, y);
 
             g.setColor(Colors.TEXT);
             g.drawString(text, x - (float)rect.getWidth(), y - (float)rect.getCenterY());
@@ -217,14 +210,14 @@ public final class LineChart extends AnimatedPanel
         if (_valuesList.isEmpty())
             y = getHeight() - PADDING;
 
-        g.drawLine(PADDING, y, getWidth() - PADDING_RIGHT, y); // horizontal
+        g.drawLine(PADDING, y, getWidth() - PADDING, y); // horizontal
         // axis
     }
 
     private void drawLines(Graphics2D g)
     {
         // set clip so line does not draw outside the axis
-        g.setClip(PADDING, PADDING, getWidth() - PADDING - PADDING_RIGHT, getHeight() - PADDING * 2);
+        g.setClip(PADDING, PADDING, getWidth() - PADDING * 2, getHeight() - PADDING * 2);
 
         int index = 0;
         for (String name : _valuesList.keySet())
@@ -267,7 +260,7 @@ public final class LineChart extends AnimatedPanel
      */
     private float getX(int index)
     {
-        int width = getWidth() - PADDING - PADDING_RIGHT;
+        int width = getWidth() - PADDING * 2;
         int left = PADDING;
 
         if (_xValues.length == 1)
@@ -335,7 +328,7 @@ public final class LineChart extends AnimatedPanel
     //========================================================================= PROPERTIES
     public final void setTitle(String title)
     {
-        _title = title;
+        _title.setText(title);
         repaint();
     }
 
