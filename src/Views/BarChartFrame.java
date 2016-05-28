@@ -1,6 +1,6 @@
 package Views;
 
-import AniChart.PieChart;
+import AniChart.BarChart;
 import Utils.MathUtils;
 
 import javax.swing.*;
@@ -8,18 +8,18 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public final class PieChartFrame extends JFrame
+public final class BarChartFrame extends JFrame
 {
     public static void main(String[] args)
     {
-        new PieChartFrame().setVisible(true);
+        new BarChartFrame().setVisible(true);
     }
 
-    private final PieChart _chart = new PieChart();
+    private final BarChart _chart = new BarChart();
 
-    private PieChartFrame()
+    private BarChartFrame()
     {
-        super("Pie Chart");
+        super("Bar Chart");
 
         setBounds(100, 100, 400, 300);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -48,13 +48,12 @@ public final class PieChartFrame extends JFrame
 
     private void resetChart()
     {
-        _chart.setTitle("Title");
+        int count = MathUtils.rand(60, 90);
+        double[] values = new double[count];
 
-        int count = MathUtils.rand(2, 8);
-        float[] values = new float[count];
-
-        for (int i = 0; i < count; i++)
-            values[i] = MathUtils.rand(1, 10);
+        values[0] = MathUtils.rand(-50, 50);
+        for (int i = 1; i < count; i++)
+            values[i] = values[i - 1] + MathUtils.rand(-10, 10);
 
         _chart.setValues(values);
     }

@@ -2,8 +2,12 @@ package Views;
 
 import AniChart.Colors;
 import AniChart.LineChart;
+import Utils.MathUtils;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public final class LineChartFrame extends JFrame
 {
@@ -12,6 +16,8 @@ public final class LineChartFrame extends JFrame
         new LineChartFrame().setVisible(true);
     }
 
+    private final LineChart _chart = new LineChart();
+
     private LineChartFrame()
     {
         super("Line Chart");
@@ -19,13 +25,54 @@ public final class LineChartFrame extends JFrame
         setBounds(100, 100, 400, 300);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        LineChart chart = new LineChart();
+        BorderLayout layout = new BorderLayout();
+        setLayout(layout);
 
-        chart.setTitle("Title");
-        chart.setXValues(new String[] { "1", "2", "3", "4", "5", "6" });
-        chart.addDataset("Temperature", Colors.get(0), new double[] { 1, 3, 2, 4, 2, 1 });
-        chart.addDataset("Humidity", Colors.get(1), new double[] { 2, 7, 5, 4, 6, 9 });
+        add(_chart);
+        add(createButton(), BorderLayout.SOUTH);
+    }
 
-        add(chart);
+    private JButton createButton()
+    {
+        JButton btn = new JButton("Reset");
+
+        btn.addActionListener(new ActionListener()
+        {
+            public final void actionPerformed(ActionEvent e)
+            {
+                resetChart();
+            }
+        });
+
+        return btn;
+    }
+
+    private void resetChart()
+    {
+        _chart.clear();
+
+        _chart.setTitle("Title");
+
+        int count = MathUtils.rand(60, 90);
+        String[] xValues = new String[count];
+
+        for (int i = 0; i < count; i++)
+            xValues[i] = String.valueOf(i + 1);
+
+        _chart.setXValues(xValues);
+
+        double[] values = new double[count];
+        values[0] = MathUtils.rand(-50, 50);
+        for (int i = 1; i < count; i++)
+            values[i] = values[i - 1] + MathUtils.rand(-10, 10);
+
+        _chart.addDataset("Temperature", values);
+
+        values = new double[count];
+        values[0] = MathUtils.rand(-50, 50);
+        for (int i = 1; i < count; i++)
+            values[i] = values[i - 1] + MathUtils.rand(-10, 10);
+
+        _chart.addDataset("Humidity", values);
     }
 }

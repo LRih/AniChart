@@ -19,12 +19,6 @@ public final class PieChart extends AnimatedPanel
 
     private String _title;
 
-    //========================================================================= INITIALIZE
-    public PieChart()
-    {
-        setBackground(Color.WHITE);
-    }
-
     //========================================================================= FUNCTIONS
     private void updateDimensions(Graphics2D g)
     {
@@ -77,7 +71,7 @@ public final class PieChart extends AnimatedPanel
         if (_title != null && !_title.isEmpty())
             y += (_rectTitle.getHeight() + TITLE_MARGIN) / 2f;
 
-        float totalAngle = 360 * aniProgress();
+        float totalAngle = 360 * getAniProgress();
         float angle = 0;
 
         for (int i = 0; i < _values.length; i++)

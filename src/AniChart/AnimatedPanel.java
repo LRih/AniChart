@@ -1,46 +1,71 @@
 package AniChart;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 /**
  * Provides support for animation.
  */
-public class AnimatedPanel extends JPanel implements ActionListener
+public abstract class AnimatedPanel extends JPanel implements ActionListener
 {
     //========================================================================= VARIABLES
     private static final int ANIMATION_DURATION = 30;
     private static final int ANIMATION_FPS = 60;
 
-    private int _aniProgress = 0;
+    private static final String DEFAULT_TAG = "default";
+
+    private HashMap<String, Integer> _aniProgresses = new HashMap<>();
     private final Timer _timer;
 
     //========================================================================= INITIALIZE
     public AnimatedPanel()
     {
+        setBackground(Color.WHITE);
+
         _timer = new Timer(1000 / ANIMATION_FPS, this);
     }
 
     //========================================================================= FUNCTIONS
     protected final void startAnimation()
     {
-        _aniProgress = ANIMATION_DURATION;
+        startAnimation(DEFAULT_TAG);
+    }
+    protected final void startAnimation(String tag)
+    {
+        _aniProgresses.put(tag, ANIMATION_DURATION);
         _timer.start();
     }
 
     //========================================================================= PROPERTIES
-    protected final float aniProgress()
+    protected final float getAniProgress()
     {
-        return 1 - _aniProgress / (float)ANIMATION_DURATION;
+        return getAniProgress(DEFAULT_TAG);
+    }
+    protected final float getAniProgress(String tag)
+    {
+        return 1 - _aniProgresses.get(tag) / (float)ANIMATION_DURATION;
     }
 
     //========================================================================= EVENTS
     public final void actionPerformed(ActionEvent e)
     {
-        _aniProgress--;
+        boolean isAnimationDone = true;
 
-        if (_aniProgress == 0)
+        for (String name : _aniProgresses.keySet())
+        {
+            int duration = _aniProgresses.get(name);
+
+            if (duration > 1)
+                isAnimationDone = false;
+
+            if (duration > 0)
+                _aniProgresses.put(name, duration - 1);
+        }
+
+        if (isAnimationDone)
             _timer.stop();
 
         onAniProgressChanged();

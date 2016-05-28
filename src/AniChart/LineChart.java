@@ -1,20 +1,13 @@
 package AniChart;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-public final class LineChart extends JPanel implements ActionListener
+public final class LineChart extends AnimatedPanel
 {
     //========================================================================= VARIABLES
-    private static final int ANIMATION_DURATION = 30;
-    private static final int ANIMATION_FPS = 60;
-
     private static final int PADDING = 60;
     private static final int PADDING_RIGHT = 20;
 
@@ -40,35 +33,12 @@ public final class LineChart extends JPanel implements ActionListener
     private int maxDataPoints;
 
     // linked hash map to preserve insertion order
-    private final LinkedHashMap<String, double[]> oldDatasets = new LinkedHashMap<>();
     private final LinkedHashMap<String, double[]> datasets = new LinkedHashMap<>();
-    private final HashMap<String, Color> colors = new HashMap<>();
 
     private double min = Float.MAX_VALUE;
     private double max = Float.MIN_VALUE;
 
-    // used for animations
-    private final HashMap<String, Integer> aniProgressList = new HashMap<>();
-    private final Timer timer;
-
-    //========================================================================= INITIALIZE
-    public LineChart()
-    {
-        setBackground(Color.WHITE);
-
-        timer = new Timer(1000 / ANIMATION_FPS, this);
-    }
-
     //========================================================================= FUNCTIONS
-    /**
-     * Restart animation for all datasets.
-     */
-    public final void animate()
-    {
-        for (String name : aniProgressList.keySet())
-            aniProgressList.put(name, ANIMATION_DURATION);
-    }
-
     public final void paintComponent(Graphics graphics)
     {
         super.paintComponent(graphics);
@@ -268,7 +238,7 @@ public final class LineChart extends JPanel implements ActionListener
         int index = 0;
         for (String name : datasets.keySet())
         {
-            g.setColor(colors.get(name));
+            g.setColor(Colors.get(index));
             g.setStroke(new BasicStroke(LINE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             g.draw(getLinePath(name));
 
@@ -295,22 +265,11 @@ public final class LineChart extends JPanel implements ActionListener
     private double getAnimatedValue(String name, int index)
     {
         double mean = (min + max) / 2;
-        double aniLeftPercent = aniProgressList.get(name) / (float)ANIMATION_DURATION;
+        double aniLeftPercent = 1 - getAniProgress(name);
 
         double[] values = datasets.get(name);
-        double[] oldValues = oldDatasets.containsKey(name) ? oldDatasets.get(name) : null;
 
-        if (oldValues == null)
-            return values[index] - (values[index] - mean) * aniLeftPercent;
-        else
-        {
-            if (values.length <= index)
-                return 0;
-            else if (oldValues.length <= index)
-                return values[index] - (values[index] - mean) * aniLeftPercent;
-            else
-                return values[index] - (values[index] - oldValues[index]) * aniLeftPercent;
-        }
+        return values[index] - (values[index] - mean) * aniLeftPercent;
     }
 
     /**
@@ -339,17 +298,13 @@ public final class LineChart extends JPanel implements ActionListener
         return bottom - (bottom - top) * (value - min) / (max - min);
     }
 
-    public final void addDataset(String name, Color color, double[] values)
+    public final void addDataset(String name, double[] values)
     {
-        if (datasets.containsKey(name))
-            oldDatasets.put(name, datasets.get(name));
-
         if (values.length == 0)
             return;
 
         datasets.put(name, values);
-        colors.put(name, color);
-        aniProgressList.put(name, ANIMATION_DURATION);
+        startAnimation(name);
 
         // calculate new min
         for (double value : values)
@@ -362,7 +317,6 @@ public final class LineChart extends JPanel implements ActionListener
                 max = value;
 
         repaint();
-        timer.start();
     }
 
     public final void removeDataset(String name)
@@ -370,14 +324,9 @@ public final class LineChart extends JPanel implements ActionListener
         if (!datasets.containsKey(name))
             return;
 
-        // if dataset has not yet been replaced, it will not be contained in old
-        // datasets
-        if (oldDatasets.containsKey(name))
-            oldDatasets.remove(name);
-
         datasets.remove(name);
-        colors.remove(name);
-        aniProgressList.remove(name);
+        // TODO clear animation function
+//        aniProgressList.remove(name);
     }
 
     public final void clear()
@@ -391,10 +340,9 @@ public final class LineChart extends JPanel implements ActionListener
     public final void clearDatasets()
     {
         datasets.clear();
-        oldDatasets.clear();
 
-        colors.clear();
-        aniProgressList.clear();
+        // TODO clear animation function
+//        aniProgressList.clear();
 
         min = Float.MAX_VALUE;
         max = Float.MIN_VALUE;
@@ -448,33 +396,9 @@ public final class LineChart extends JPanel implements ActionListener
         repaint();
     }
 
-    public final void setMaxDataPoints(int max)
-    {
-        maxDataPoints = Math.min(max, xValues.length);
-
-        repaint();
-    }
-
     //========================================================================= EVENTS
-    public final void actionPerformed(ActionEvent e)
+    protected final void onAniProgressChanged()
     {
-        boolean isAnimationDone = true;
-
-        for (String name : aniProgressList.keySet())
-        {
-            int tick = aniProgressList.get(name);
-
-            if (tick > 1)
-                isAnimationDone = false;
-
-            if (tick > 0)
-                aniProgressList.put(name, tick - 1);
-        }
-
         repaint();
-
-        // if animation is not done, repeat timer
-        if (!isAnimationDone)
-            timer.start();
     }
 }
