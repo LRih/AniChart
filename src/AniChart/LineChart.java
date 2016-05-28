@@ -22,7 +22,7 @@ public final class LineChart extends AnimatedPanel
     private String _xAxisText = "";
     private String _yAxisText = "";
 
-    private String[] _xValues = new String[]{};
+    private String[] _xValues = new String[] { };
 
     // linked hash map to preserve insertion order
     private final LinkedHashMap<String, double[]> _valuesList = new LinkedHashMap<>();

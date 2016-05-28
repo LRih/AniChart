@@ -56,7 +56,12 @@ public abstract class AnimatedPanel extends JPanel implements ActionListener
     }
     protected final float getAniProgress(String tag)
     {
-        return 1 - _aniProgresses.get(tag) / (float)ANIMATION_DURATION;
+        Integer progress = _aniProgresses.get(tag);
+
+        if (progress != null)
+            return 1 - progress / (float)ANIMATION_DURATION;
+
+        return 1;
     }
 
     //========================================================================= EVENTS

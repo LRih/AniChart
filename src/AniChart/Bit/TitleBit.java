@@ -16,38 +16,33 @@ public final class TitleBit
     private String _text;
 
     //========================================================================= FUNCTIONS
-    public final void draw(Graphics2D g, float x, float y, boolean center)
+    public final void draw(Graphics2D g, float x, float y, boolean centerX)
     {
-        if (!hasText())
+        if (_text == null)
             return;
 
-        if (center)
+        if (centerX)
             x -= _rect.getCenterX();
 
         g.setColor(Colors.TEXT);
         g.setFont(Fonts.TITLE);
-        g.drawString(_text, x, (float)(y + _rect.getHeight()));
+        g.drawString(_text, x, y - (float)_rect.getY());
     }
 
     //========================================================================= PROPERTIES
     public final float width()
     {
-        if (hasText())
+        if (_text != null)
             return (float)_rect.getWidth();
 
         return 0;
     }
     public final float height()
     {
-        if (hasText())
+        if (_text != null)
             return (float)(_rect.getHeight() + PADDING_BOTTOM);
 
         return 0;
-    }
-
-    public final boolean hasText()
-    {
-        return _text != null && !_text.isEmpty();
     }
 
     public final void setText(String text)
@@ -57,14 +52,9 @@ public final class TitleBit
         // update bounding rectangle
         Graphics g = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).getGraphics();
 
-        if (hasText())
-        {
-            FontMetrics metrics = g.getFontMetrics(Fonts.TITLE);
-            g.setFont(Fonts.TITLE);
-            _rect = metrics.getStringBounds(_text, g);
-        }
-        else
-            _rect = new Rectangle(0, 0, 0, 0);
+        FontMetrics metrics = g.getFontMetrics(Fonts.TITLE);
+        g.setFont(Fonts.TITLE);
+        _rect = metrics.getStringBounds(_text, g);
 
         g.dispose();
     }

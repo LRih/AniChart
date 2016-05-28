@@ -1,12 +1,10 @@
 package AniChart;
 
 import AniChart.Bit.LegendBit;
+import AniChart.Bit.PieBit;
 import AniChart.Bit.TitleBit;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class PieChart extends AnimatedPanel
 {
@@ -15,9 +13,7 @@ public final class PieChart extends AnimatedPanel
 
     private final TitleBit _title = new TitleBit();
     private final LegendBit _legend = new LegendBit();
-
-    private List<Float> _values = new ArrayList<>();
-    private float _total = 0;
+    private final PieBit _pie = new PieBit();
 
     //========================================================================= FUNCTIONS
     protected final void paintComponent(Graphics graphics)
@@ -30,7 +26,6 @@ public final class PieChart extends AnimatedPanel
 
         drawTitle(g);
         drawLegend(g);
-
         drawPie(g);
     }
 
@@ -38,39 +33,17 @@ public final class PieChart extends AnimatedPanel
     {
         _title.draw(g, getWidth() / 2f, PADDING, true);
     }
+
     private void drawLegend(Graphics2D g)
     {
-        // TODO draw in correct position
-        _legend.draw(g, PADDING, PADDING);
+        float x = getWidth() - PADDING - _legend.width();
+        float cy = PADDING + _title.height() + contentHeight() / 2;
+        _legend.draw(g, x, cy, true);
     }
 
     private void drawPie(Graphics2D g)
     {
-        // no values to draw
-        if (_values.isEmpty())
-            return;
-
-        float size = Math.min(contentWidth(), contentHeight());
-        float x = (getWidth() - size) / 2f;
-        float y = (getHeight() - size + _title.height()) / 2f;
-
-        float totalAngle = 360 * getAniProgress();
-        float angle = 0;
-
-        for (int i = 0; i < _values.size(); i++)
-        {
-            float sweep = _values.get(i) / _total * totalAngle;
-            drawWedge(g, x, y, size, angle, sweep, Colors.get(i));
-            angle += sweep;
-        }
-    }
-
-    private void drawWedge(Graphics2D g, float x, float y, float size, float angle, float sweep, Color color)
-    {
-        g.setColor(color);
-
-        Arc2D.Double arc = new Arc2D.Double(x, y, size, size, angle, sweep, Arc2D.PIE);
-        g.fill(arc);
+        _pie.draw(g, PADDING, PADDING + _title.height(), contentWidth(), contentHeight(), getAniProgress());
     }
 
 
@@ -78,10 +51,9 @@ public final class PieChart extends AnimatedPanel
     {
         startAnimation();
 
-        _legend.addText(name, Colors.get(_values.size()));
-
-        _values.add(value);
-        _total += value;
+        Color col = Colors.get(_pie.size());
+        _legend.addText(name, col);
+        _pie.addValue(value, col);
 
         repaint();
     }
@@ -91,9 +63,7 @@ public final class PieChart extends AnimatedPanel
         removeAllAnimations();
 
         _legend.clear();
-
-        _values.clear();
-        _total = 0;
+        _pie.clear();
 
         repaint();
     }
@@ -101,7 +71,7 @@ public final class PieChart extends AnimatedPanel
     //========================================================================= PROPERTIES
     private float contentWidth()
     {
-        return getWidth() - PADDING * 2;
+        return getWidth() - PADDING * 2 - _legend.width();
     }
     private float contentHeight()
     {

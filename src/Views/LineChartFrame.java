@@ -86,7 +86,7 @@ public final class LineChartFrame extends JFrame
         values = new double[count];
 
         for (int i = 0; i < count; i++)
-            values[i] = 50 * Math.sin(i / 2f) + i - 20;
+            values[i] = (50 + i) * Math.sin(i / 2f) + i - 20;
 
         _chart.addValues("sin(x)", values);
     }
