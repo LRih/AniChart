@@ -10,10 +10,6 @@ public final class BarChart extends AnimatedPanel
 
     private static final float AXIS_WIDTH = 1.5f;
 
-    private static final Font FONT_FORECAST = new Font("Century Gothic", Font.PLAIN, 14);
-
-    private static final Color COL_AXIS = new Color(160, 160, 160);
-
     private double[] values;
 
     private double min = Float.MAX_VALUE;
@@ -40,20 +36,19 @@ public final class BarChart extends AnimatedPanel
         if (values != null && values.length > 0)
             return;
 
-        String text = "no data";
-
-        FontMetrics metrics = g.getFontMetrics(FONT_FORECAST);
+        String text = "No data";
+        FontMetrics metrics = g.getFontMetrics(Fonts.TEXT);
         Rectangle2D rect = metrics.getStringBounds(text, g);
 
         // draw text in middle of chart when no data loaded
-        g.setFont(FONT_FORECAST);
-        g.setColor(COL_AXIS);
+        g.setFont(Fonts.TEXT);
+        g.setColor(Colors.AXIS);
         g.drawString(text, getWidth() / 2f - (float)rect.getCenterX(), getHeight() / 2f - (float)rect.getCenterY());
     }
 
     private void drawAxis(Graphics2D g)
     {
-        g.setColor(COL_AXIS);
+        g.setColor(Colors.AXIS);
         g.setStroke(new BasicStroke(AXIS_WIDTH));
 
         // constrain axis to chart bounds

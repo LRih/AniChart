@@ -1,6 +1,5 @@
 package Views;
 
-import AniChart.Colors;
 import AniChart.LineChart;
 import Utils.MathUtils;
 
@@ -22,7 +21,7 @@ public final class LineChartFrame extends JFrame
     {
         super("Line Chart");
 
-        setBounds(100, 100, 400, 300);
+        setBounds(100, 100, 600, 500);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         BorderLayout layout = new BorderLayout();
@@ -61,18 +60,26 @@ public final class LineChartFrame extends JFrame
 
         _chart.setXValues(xValues);
 
+        int lastChange = MathUtils.rand(-5, 5);
         double[] values = new double[count];
         values[0] = MathUtils.rand(-50, 50);
-        for (int i = 1; i < count; i++)
-            values[i] = values[i - 1] + MathUtils.rand(-10, 10);
 
-        _chart.addDataset("Temperature", values);
+        for (int i = 1; i < count; i++)
+        {
+            int change = MathUtils.rand(lastChange - 1, lastChange + 1);
+            values[i] = values[i - 1] + change;
+            lastChange = change;
+        }
+
+        _chart.addValues("Temperature", values);
+
 
         values = new double[count];
         values[0] = MathUtils.rand(-50, 50);
+
         for (int i = 1; i < count; i++)
             values[i] = values[i - 1] + MathUtils.rand(-10, 10);
 
-        _chart.addDataset("Humidity", values);
+        _chart.addValues("Humidity", values);
     }
 }

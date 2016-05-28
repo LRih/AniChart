@@ -17,23 +17,14 @@ public final class LineChart extends AnimatedPanel
     private static final float MINOR_AXIS_WIDTH = 1f;
     private static final float LINE_WIDTH = 2f;
 
-    private static final Font FONT_TITLE = new Font("Arial", Font.BOLD, 18);
-    private static final Font FONT_AXIS = new Font("Arial", Font.BOLD, 14);
-    private static final Font FONT_MINOR_AXIS = new Font("Arial", Font.PLAIN, 14);
+    private String _title = "";
+    private String _xAxisText = "";
+    private String _yAxisText = "";
 
-    private static final Color COL_TEXT = new Color(70, 70, 70);
-    private static final Color COL_AXIS = new Color(160, 160, 160);
-    private static final Color COL_MINOR_AXIS = new Color(224, 224, 224);
-
-    private String title = "";
-    private String xAxisText = "";
-    private String yAxisText = "";
-
-    private String[] xValues = new String[]{};
-    private int maxDataPoints;
+    private String[] _xValues = new String[]{};
 
     // linked hash map to preserve insertion order
-    private final LinkedHashMap<String, double[]> datasets = new LinkedHashMap<>();
+    private final LinkedHashMap<String, double[]> _valuesList = new LinkedHashMap<>();
 
     private double min = Float.MAX_VALUE;
     private double max = Float.MIN_VALUE;
@@ -58,7 +49,7 @@ public final class LineChart extends AnimatedPanel
 
     private void drawText(Graphics2D g)
     {
-        g.setColor(COL_TEXT);
+        g.setColor(Colors.TEXT);
 
         drawTitle(g);
         drawAxisText(g);
@@ -67,32 +58,32 @@ public final class LineChart extends AnimatedPanel
 
     private void drawTitle(Graphics2D g)
     {
-        FontMetrics metrics = g.getFontMetrics(FONT_TITLE);
-        Rectangle2D rect = metrics.getStringBounds(title, g);
+        FontMetrics metrics = g.getFontMetrics(Fonts.TITLE);
+        Rectangle2D rect = metrics.getStringBounds(_title, g);
 
-        g.setFont(FONT_TITLE);
+        g.setFont(Fonts.TITLE);
 
         float x = getWidth() / 2f - (float)rect.getCenterX();
         float y = PADDING / 2f - (float)rect.getCenterY();
 
-        g.drawString(title, x, y);
+        g.drawString(_title, x, y);
     }
 
     private void drawAxisText(Graphics2D g)
     {
-        FontMetrics metrics = g.getFontMetrics(FONT_AXIS);
-        g.setFont(FONT_AXIS);
+        FontMetrics metrics = g.getFontMetrics(Fonts.AXIS);
+        g.setFont(Fonts.AXIS);
 
         // x-axis
-        Rectangle2D rect = metrics.getStringBounds(xAxisText, g);
+        Rectangle2D rect = metrics.getStringBounds(_xAxisText, g);
 
         float x = getWidth() / 2f - (float)rect.getCenterX();
         float y = getHeight() - PADDING / 3f - (float)rect.getCenterY();
 
-        g.drawString(xAxisText, x, y);
+        g.drawString(_xAxisText, x, y);
 
         // y-axis
-        rect = metrics.getStringBounds(yAxisText, g);
+        rect = metrics.getStringBounds(_yAxisText, g);
 
         float rad = 90 * (float)Math.PI / 180;
 
@@ -100,21 +91,21 @@ public final class LineChart extends AnimatedPanel
         y = getHeight() / 2f;
 
         g.rotate(-rad, x, y);
-        g.drawString(yAxisText, PADDING / 3f - (float)rect.getCenterX(), getHeight() / 2f - (float)rect.getCenterY());
+        g.drawString(_yAxisText, PADDING / 3f - (float)rect.getCenterX(), getHeight() / 2f - (float)rect.getCenterY());
         g.rotate(rad, x, y);
     }
 
     private void drawEmptyText(Graphics2D g)
     {
-        if (!datasets.isEmpty())
+        if (!_valuesList.isEmpty())
             return;
 
         String text = "No data";
-        FontMetrics metrics = g.getFontMetrics(FONT_MINOR_AXIS);
+        FontMetrics metrics = g.getFontMetrics(Fonts.TEXT);
         Rectangle2D rect = metrics.getStringBounds(text, g);
 
-        g.setFont(FONT_MINOR_AXIS);
-        g.setColor(COL_AXIS);
+        g.setFont(Fonts.TEXT);
+        g.setColor(Colors.AXIS);
         g.drawString(text, getWidth() / 2f - (float)rect.getCenterX(), getHeight() / 2f - (float)rect.getCenterY());
     }
 
@@ -131,42 +122,42 @@ public final class LineChart extends AnimatedPanel
 
     private void drawMinorXAxis(Graphics2D g)
     {
-        FontMetrics metrics = g.getFontMetrics(FONT_MINOR_AXIS);
-        g.setFont(FONT_MINOR_AXIS);
+        FontMetrics metrics = g.getFontMetrics(Fonts.MINOR_AXIS);
+        g.setFont(Fonts.MINOR_AXIS);
         g.setStroke(new BasicStroke(MINOR_AXIS_WIDTH));
 
-        int interval = (int)(maxDataPoints / (getWidth() / 100f));
+        int interval = (int)(_xValues.length / (getWidth() / 100f));
 
         if (interval == 0)
             interval = 1;
 
-        if (datasets.isEmpty())
+        if (_valuesList.isEmpty())
             return;
 
-        for (int i = startIndex(); i < xValues.length; i += interval)
+        for (int i = 0; i < _xValues.length; i += interval)
         {
-            Rectangle2D rect = metrics.getStringBounds(xValues[i], g);
+            Rectangle2D rect = metrics.getStringBounds(_xValues[i], g);
             int x = (int)getX(i);
             int y2 = getHeight() - PADDING + MINOR_AXIS_EXTRA;
 
-            g.setColor(COL_MINOR_AXIS);
+            g.setColor(Colors.MINOR_AXIS);
             g.drawLine(x, PADDING, x, y2);
 
-            g.setColor(COL_TEXT);
-            g.drawString(xValues[i], x - (float)rect.getCenterX(), y2 + (float)rect.getHeight());
+            g.setColor(Colors.TEXT);
+            g.drawString(_xValues[i], x - (float)rect.getCenterX(), y2 + (float)rect.getHeight());
         }
     }
 
     private void drawMinorYAxis(Graphics2D g)
     {
-        FontMetrics metrics = g.getFontMetrics(FONT_MINOR_AXIS);
+        FontMetrics metrics = g.getFontMetrics(Fonts.MINOR_AXIS);
         double median = (max + min) / 2;
         int interval = (int)Math.abs((max - min) / (getHeight() / 100f));
 
         if (interval == 0)
             interval = 1;
 
-        if (datasets.isEmpty())
+        if (_valuesList.isEmpty())
             return;
 
         // draw above mean
@@ -179,10 +170,10 @@ public final class LineChart extends AnimatedPanel
             Rectangle2D rect = metrics.getStringBounds(text, g);
             int x = PADDING - MINOR_AXIS_EXTRA;
 
-            g.setColor(COL_MINOR_AXIS);
+            g.setColor(Colors.MINOR_AXIS);
             g.drawLine(x, y, getWidth() - PADDING_RIGHT, y);
 
-            g.setColor(COL_TEXT);
+            g.setColor(Colors.TEXT);
             g.drawString(text, x - (float)rect.getWidth(), y - (float)rect.getCenterY());
 
             value += interval;
@@ -199,10 +190,10 @@ public final class LineChart extends AnimatedPanel
             Rectangle2D rect = metrics.getStringBounds(text, g);
             int x = PADDING - MINOR_AXIS_EXTRA;
 
-            g.setColor(COL_MINOR_AXIS);
+            g.setColor(Colors.MINOR_AXIS);
             g.drawLine(x, y, getWidth() - PADDING_RIGHT, y);
 
-            g.setColor(COL_TEXT);
+            g.setColor(Colors.TEXT);
             g.drawString(text, x - (float)rect.getWidth(), y - (float)rect.getCenterY());
 
             value -= interval;
@@ -212,7 +203,7 @@ public final class LineChart extends AnimatedPanel
 
     private void drawAxis(Graphics2D g)
     {
-        g.setColor(COL_AXIS);
+        g.setColor(Colors.AXIS);
         g.setStroke(new BasicStroke(AXIS_WIDTH));
 
         g.drawLine(PADDING, PADDING, PADDING, getHeight() - PADDING); // vertical
@@ -223,7 +214,7 @@ public final class LineChart extends AnimatedPanel
         y = Math.min(Math.max(y, PADDING), getHeight() - PADDING);
 
         // set axis to bottom when no datasets
-        if (datasets.isEmpty())
+        if (_valuesList.isEmpty())
             y = getHeight() - PADDING;
 
         g.drawLine(PADDING, y, getWidth() - PADDING_RIGHT, y); // horizontal
@@ -236,7 +227,7 @@ public final class LineChart extends AnimatedPanel
         g.setClip(PADDING, PADDING, getWidth() - PADDING - PADDING_RIGHT, getHeight() - PADDING * 2);
 
         int index = 0;
-        for (String name : datasets.keySet())
+        for (String name : _valuesList.keySet())
         {
             g.setColor(Colors.get(index));
             g.setStroke(new BasicStroke(LINE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -250,13 +241,12 @@ public final class LineChart extends AnimatedPanel
 
     private Path2D getLinePath(String name)
     {
-        double[] values = datasets.get(name);
-        int start = startIndex();
+        double[] values = _valuesList.get(name);
 
         Path2D path = new Path2D.Float();
-        path.moveTo(getX(start), getY(getAnimatedValue(name, 0)));
+        path.moveTo(getX(0), getY(getAnimatedValue(name, 0)));
 
-        for (int i = start + 1; i < values.length; i++)
+        for (int i = 1; i < values.length; i++)
             path.lineTo(getX(i), getY(getAnimatedValue(name, i)));
 
         return path;
@@ -267,7 +257,7 @@ public final class LineChart extends AnimatedPanel
         double mean = (min + max) / 2;
         double aniLeftPercent = 1 - getAniProgress(name);
 
-        double[] values = datasets.get(name);
+        double[] values = _valuesList.get(name);
 
         return values[index] - (values[index] - mean) * aniLeftPercent;
     }
@@ -280,10 +270,10 @@ public final class LineChart extends AnimatedPanel
         int width = getWidth() - PADDING - PADDING_RIGHT;
         int left = PADDING;
 
-        if (xValues.length == 1)
+        if (_xValues.length == 1)
             return left;
 
-        return left + width / ((float)maxDataPoints - 1) * (index - startIndex());
+        return left + width / ((float)_xValues.length - 1) * index;
     }
 
     /**
@@ -298,12 +288,13 @@ public final class LineChart extends AnimatedPanel
         return bottom - (bottom - top) * (value - min) / (max - min);
     }
 
-    public final void addDataset(String name, double[] values)
+
+    public final void addValues(String name, double[] values)
     {
         if (values.length == 0)
             return;
 
-        datasets.put(name, values);
+        _valuesList.put(name, values);
         startAnimation(name);
 
         // calculate new min
@@ -319,30 +310,21 @@ public final class LineChart extends AnimatedPanel
         repaint();
     }
 
-    public final void removeDataset(String name)
+    public final void removeValues(String name)
     {
-        if (!datasets.containsKey(name))
-            return;
-
-        datasets.remove(name);
-        // TODO clear animation function
-//        aniProgressList.remove(name);
+        if (_valuesList.containsKey(name))
+        {
+            _valuesList.remove(name);
+            removeAnimation(name);
+        }
     }
 
     public final void clear()
     {
-        xValues = new String[]{};
-        clearDatasets();
+        _xValues = new String[] { };
+        _valuesList.clear();
 
-        repaint();
-    }
-
-    public final void clearDatasets()
-    {
-        datasets.clear();
-
-        // TODO clear animation function
-//        aniProgressList.clear();
+        removeAllAnimations();
 
         min = Float.MAX_VALUE;
         max = Float.MIN_VALUE;
@@ -351,48 +333,26 @@ public final class LineChart extends AnimatedPanel
     }
 
     //========================================================================= PROPERTIES
-    public final int lineCount()
-    {
-        return datasets.keySet().size();
-    }
-
     public final void setTitle(String title)
     {
-        this.title = title;
+        _title = title;
         repaint();
     }
 
     public final void setXAxisText(String text)
     {
-        this.xAxisText = text;
+        _xAxisText = text;
         repaint();
     }
-
     public final void setYAxisText(String text)
     {
-        this.yAxisText = text;
+        _yAxisText = text;
         repaint();
-    }
-
-    public final String[] xValues()
-    {
-        return xValues;
-    }
-
-
-    /**
-     * Based on max data points.
-     */
-    private int startIndex()
-    {
-        return xValues.length - maxDataPoints;
     }
 
     public final void setXValues(String[] values)
     {
-        xValues = values;
-        maxDataPoints = values.length;
-
+        _xValues = values;
         repaint();
     }
 

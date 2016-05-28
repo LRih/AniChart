@@ -39,6 +39,16 @@ public abstract class AnimatedPanel extends JPanel implements ActionListener
         _timer.start();
     }
 
+    protected final void removeAnimation(String tag)
+    {
+        _aniProgresses.remove(tag);
+    }
+
+    protected final void removeAllAnimations()
+    {
+        _aniProgresses.clear();
+    }
+
     //========================================================================= PROPERTIES
     protected final float getAniProgress()
     {

@@ -3,14 +3,13 @@ package AniChart;
 import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 public final class PieChart extends AnimatedPanel
 {
     //========================================================================= VARIABLES
     private static final float PADDING = 20;
     private static final float TITLE_MARGIN = 20;
-
-    private static final Font FONT_TITLE = new Font("Arial", Font.BOLD, 18);
 
     private Rectangle2D _rectTitle;
 
@@ -19,12 +18,21 @@ public final class PieChart extends AnimatedPanel
 
     private String _title;
 
-    //========================================================================= FUNCTIONS
-    private void updateDimensions(Graphics2D g)
+    //========================================================================= INITIALIZE
+    public PieChart()
     {
+        updateDimensions();
+    }
+
+    //========================================================================= FUNCTIONS
+    private void updateDimensions()
+    {
+        Graphics g = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).getGraphics();
+
         if (_title != null && !_title.isEmpty())
         {
-            FontMetrics metrics = g.getFontMetrics(FONT_TITLE);
+            FontMetrics metrics = g.getFontMetrics(Fonts.TITLE);
+            g.setFont(Fonts.TITLE);
             _rectTitle = metrics.getStringBounds(_title, g);
         }
         else
@@ -40,8 +48,6 @@ public final class PieChart extends AnimatedPanel
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        updateDimensions(g);
-
         drawTitle(g);
         drawPie(g);
     }
@@ -54,7 +60,7 @@ public final class PieChart extends AnimatedPanel
         float x = (float)(getWidth() / 2f - _rectTitle.getCenterX());
         float y = (float)(PADDING + _rectTitle.getHeight());
 
-        g.setFont(FONT_TITLE);
+        g.setFont(Fonts.TITLE);
         g.drawString(_title, x, y);
     }
 
@@ -124,6 +130,8 @@ public final class PieChart extends AnimatedPanel
     public final void setTitle(String title)
     {
         _title = title;
+
+        updateDimensions();
         repaint();
     }
 
