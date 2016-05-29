@@ -3,15 +3,16 @@ package AniChart;
 import AniChart.Bit.GraphBit;
 import AniChart.Bit.TitleBit;
 import AniChart.Bit.XAxisTextBit;
+import AniChart.Bit.YAxisTextBit;
 import Utils.MathUtils;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 
 public final class LineChart extends AnimatedPanel
 {
+    // TODO add legend
     //========================================================================= VARIABLES
     private static final int PADDING = 40; // TODO reduce later after factoring axis size
 
@@ -19,7 +20,7 @@ public final class LineChart extends AnimatedPanel
 
     private final TitleBit _title = new TitleBit();
     private final XAxisTextBit _xAxisText = new XAxisTextBit();
-    private String _yAxisText = "";
+    private final YAxisTextBit _yAxisText = new YAxisTextBit();
     private final GraphBit _graph = new GraphBit();
 
     // linked hash map to preserve insertion order
@@ -37,7 +38,7 @@ public final class LineChart extends AnimatedPanel
 
         drawText(g);
 
-        _graph.setBounds(PADDING, PADDING + _title.height(), getWidth() - PADDING, getHeight() - PADDING - _xAxisText.height());
+        _graph.setBounds(PADDING + _yAxisText.width(), PADDING + _title.height(), getWidth() - PADDING, getHeight() - PADDING - _xAxisText.height());
         _graph.draw(g);
 
         drawLines(g);
@@ -46,27 +47,8 @@ public final class LineChart extends AnimatedPanel
     private void drawText(Graphics2D g)
     {
         _title.draw(g, getWidth() / 2f, PADDING, true);
-        _xAxisText.draw(g, getWidth() / 2f, getHeight() - PADDING - _xAxisText.height(), true);
-
-        drawAxisText(g);
-    }
-
-    private void drawAxisText(Graphics2D g)
-    {
-        FontMetrics metrics = g.getFontMetrics(Fonts.AXIS);
-        g.setFont(Fonts.AXIS);
-
-        // y-axis
-        Rectangle2D rect = metrics.getStringBounds(_yAxisText, g);
-
-        float rad = 90 * (float)Math.PI / 180;
-
-        float x = PADDING / 5f;
-        float y = getHeight() / 2f;
-
-        g.rotate(-rad, x, y);
-        g.drawString(_yAxisText, PADDING / 3f - (float)rect.getCenterX(), getHeight() / 2f - (float)rect.getCenterY());
-        g.rotate(rad, x, y);
+        _xAxisText.draw(g, PADDING + _yAxisText.width() + contentWidth() / 2, getHeight() - PADDING - _xAxisText.height(), true);
+        _yAxisText.draw(g, PADDING, PADDING + _title.height() + contentHeight() / 2, true);
     }
 
     private void drawLines(Graphics2D g)
@@ -151,6 +133,15 @@ public final class LineChart extends AnimatedPanel
     }
 
     //========================================================================= PROPERTIES
+    private float contentWidth()
+    {
+        return getWidth() - PADDING * 2 - _yAxisText.width();
+    }
+    private float contentHeight()
+    {
+        return getHeight() - PADDING * 2 - _title.height() - _xAxisText.height();
+    }
+
     public final void setTitle(String title)
     {
         _title.setText(title);
@@ -163,7 +154,7 @@ public final class LineChart extends AnimatedPanel
     }
     public final void setYAxisText(String text)
     {
-        _yAxisText = text;
+        _yAxisText.setText(text);
         repaint();
     }
 
