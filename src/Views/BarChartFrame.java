@@ -48,8 +48,11 @@ public final class BarChartFrame extends JFrame
 
     private void resetChart()
     {
+        _chart.setTitle("Title");
+        _chart.setXAxisText("Cost");
+
         int count = MathUtils.rand(60, 90);
-        double[] values = new double[count];
+        float[] values = new float[count];
 
         values[0] = MathUtils.rand(-50, 50);
         for (int i = 1; i < count; i++)

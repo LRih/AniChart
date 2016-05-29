@@ -2,7 +2,7 @@ package AniChart;
 
 import java.awt.*;
 
-public class Fonts
+public final class Fonts
 {
     public static final Font TITLE = new Font("Arial", Font.BOLD, 18);
     public static final Font AXIS = new Font("Arial", Font.BOLD, 14);

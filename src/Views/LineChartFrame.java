@@ -51,6 +51,8 @@ public final class LineChartFrame extends JFrame
         _chart.clear();
 
         _chart.setTitle("Title");
+        _chart.setXAxisText("Instance");
+        _chart.setYAxisText("Values");
 
         int count = MathUtils.rand(60, 90);
         String[] xValues = new String[count];
@@ -61,7 +63,7 @@ public final class LineChartFrame extends JFrame
         _chart.setXValues(xValues);
 
         int lastChange = MathUtils.rand(-5, 5);
-        double[] values = new double[count];
+        float[] values = new float[count];
         values[0] = MathUtils.rand(-50, 50);
 
         for (int i = 1; i < count; i++)
@@ -74,7 +76,7 @@ public final class LineChartFrame extends JFrame
         _chart.addValues("Temperature", values);
 
 
-        values = new double[count];
+        values = new float[count];
         values[0] = MathUtils.rand(-50, 50);
 
         for (int i = 1; i < count; i++)
@@ -83,10 +85,10 @@ public final class LineChartFrame extends JFrame
         _chart.addValues("Humidity", values);
 
 
-        values = new double[count];
+        values = new float[count];
 
         for (int i = 0; i < count; i++)
-            values[i] = (50 + i) * Math.sin(i / 2f) + i - 20;
+            values[i] = (float)((50 + i) * Math.sin(i / 2f) + i - 20);
 
         _chart.addValues("sin(x)", values);
     }
