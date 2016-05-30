@@ -54,7 +54,7 @@ public final class LineChart extends AnimatedPanel
     private void drawLines(Graphics2D g)
     {
         // set clip so line does not draw outside the axis
-        g.setClip(PADDING, PADDING, getWidth() - PADDING * 2, getHeight() - PADDING * 2);
+        g.setClip(_graph.gridBounds());
 
         int index = 0;
         for (String name : _valuesList.keySet())
