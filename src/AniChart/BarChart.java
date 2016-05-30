@@ -48,7 +48,10 @@ public final class BarChart extends AnimatedPanel
         if (_values == null || _values.length == 0)
             return;
 
+        // TODO set separation to be half the bar width
+
         // calculate bar width
+        float gridX = (float)_graph.gridBounds().getX();
         float width = getWidth() - PADDING * 2;
         float sep = width / 200;
         float bar = (width - sep * (_values.length + 1)) / _values.length;
@@ -58,7 +61,7 @@ public final class BarChart extends AnimatedPanel
             Color col = Colors.get(2);
             g.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), getAlpha(_values[i])));
 
-            float x1 = (int)(PADDING + sep + i * (bar + sep));
+            float x1 = gridX + sep / 2 + (bar + sep) * i;
             float y1 = _graph.getY(getAnimatedValue(i));
             float y2 = _graph.getY(0);
 

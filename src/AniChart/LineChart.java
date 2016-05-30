@@ -47,6 +47,8 @@ public final class LineChart extends AnimatedPanel
     private void drawText(Graphics2D g)
     {
         _title.draw(g, getWidth() / 2f, PADDING, true);
+
+        // TODO draw axis text based on grid bounds
         _xAxisText.draw(g, PADDING + _yAxisText.width() + contentWidth() / 2, getHeight() - PADDING - _xAxisText.height(), true);
         _yAxisText.draw(g, PADDING, PADDING + _title.height() + contentHeight() / 2, true);
     }

@@ -69,7 +69,7 @@ public final class GraphBit
         // draw right side
         index = midIndex + interval;
 
-        while ((x = getX(index)) <= _x2)
+        while ((x = getX(index)) <= gridX2())
         {
             drawMinorXAxis(g, metrics, _xValues[index], x);
             index += interval;
@@ -80,7 +80,7 @@ public final class GraphBit
         Rectangle2D rect = metrics.getStringBounds(text, g);
 
         g.setColor(Colors.MINOR_AXIS);
-        g.draw(new Line2D.Float(x, _y1, x, gridY2() + MINOR_AXIS_EXTRA));
+        g.draw(new Line2D.Float(x, gridY1(), x, gridY2() + MINOR_AXIS_EXTRA));
 
         g.setColor(Colors.TEXT);
         g.drawString(text, x - (float)rect.getCenterX(), gridY2() + MINOR_AXIS_EXTRA - (float)rect.getY());
@@ -88,9 +88,7 @@ public final class GraphBit
 
     private void drawMinorYAxis(Graphics2D g)
     {
-        // TODO loops forever when height is 0
-
-        if (_min == _max)
+        if (_min >= _max || gridY1() > gridY2())
             return;
 
         FontMetrics metrics = g.getFontMetrics(Fonts.MINOR_AXIS);
@@ -104,7 +102,7 @@ public final class GraphBit
         // draw above mean
         float value = median;
 
-        while ((y = getY(value)) >= _y1)
+        while ((y = getY(value)) >= gridY1())
         {
             drawMinorYAxis(g, metrics, String.valueOf(Math.round(value)), y);
             value += interval;
@@ -125,7 +123,7 @@ public final class GraphBit
         float x = gridX1() - MINOR_AXIS_EXTRA;
 
         g.setColor(Colors.MINOR_AXIS);
-        g.draw(new Line2D.Float(x, y, _x2, y));
+        g.draw(new Line2D.Float(x, y, gridX2(), y));
 
         g.setColor(Colors.TEXT);
         g.drawString(text, x - (float)rect.getWidth(), y - (float)rect.getCenterY());
@@ -137,13 +135,13 @@ public final class GraphBit
         g.setStroke(new BasicStroke(AXIS_STROKE));
 
         float x = getX(0);
-        g.draw(new Line2D.Float(x, _y1, x, gridY2())); // vertical axis
+        g.draw(new Line2D.Float(x, gridY1(), x, gridY2())); // vertical axis
 
         // constrain axis to chart bounds
         float y = getY(0);
-        y = Math.min(Math.max(y, _y1), gridY2());
+        y = Math.min(Math.max(y, gridY1()), gridY2());
 
-        g.draw(new Line2D.Float(gridX1(), y, _x2, y)); // horizontal axis
+        g.draw(new Line2D.Float(gridX1(), y, gridX2(), y)); // horizontal axis
     }
 
 
@@ -179,11 +177,11 @@ public final class GraphBit
     }
     private float gridWidth()
     {
-        return _x2 - gridX1();
+        return gridX2() - gridX1();
     }
     private float gridHeight()
     {
-        return gridY2() - _y1;
+        return gridY2() - gridY1();
     }
 
     /**
@@ -203,9 +201,9 @@ public final class GraphBit
     public final float getY(float value)
     {
         if (_min == _max)
-            return _y1 + gridHeight() / 2;
+            return gridY1() + gridHeight() / 2;
 
-        float top = _y1 + gridHeight() / 8;
+        float top = gridY1() + gridHeight() / 8;
         float bottom = gridY2() - gridHeight() / 8;
 
         return bottom - (bottom - top) * (value - _min) / (_max - _min);
