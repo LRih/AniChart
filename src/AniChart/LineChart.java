@@ -1,9 +1,6 @@
 package AniChart;
 
-import AniChart.Bit.GraphBit;
-import AniChart.Bit.TitleBit;
-import AniChart.Bit.XAxisTextBit;
-import AniChart.Bit.YAxisTextBit;
+import AniChart.Bit.*;
 import Utils.MathUtils;
 
 import java.awt.*;
@@ -21,6 +18,7 @@ public final class LineChart extends AnimatedPanel
     private final TitleBit _title = new TitleBit();
     private final XAxisTextBit _xAxisText = new XAxisTextBit();
     private final YAxisTextBit _yAxisText = new YAxisTextBit();
+    private final LegendBit _legend = new LegendBit();
     private final GraphBit _graph = new GraphBit();
 
     // linked hash map to preserve insertion order
